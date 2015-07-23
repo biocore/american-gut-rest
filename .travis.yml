@@ -18,18 +18,20 @@ install:
   # when intalling scikit-bio
   - travis_retry conda create --yes -n env_name python=$PYTHON_VERSION pip 'scipy>0.13.0' 'numpy>= 1.7' 'h5py>=2.3.1' 'future==0.13.0' 'psycopg2'
   - source activate env_name
-  - pip install biom-format
+  - pip install biom-format requests
   # adapted from https://github.com/APItools/monitor/blob/master/.travis.yml
   - wget -T 60 -qO- http://openresty.org/download/ngx_openresty-${OPENRESTY_VERSION}.tar.gz | tar xvz -C /tmp/
   - cd /tmp/ngx_openresty-${OPENRESTY_VERSION}
-  - ./configure --prefix=${OPENRESTY}; make; 
+  - ./configure --prefix=${OPENRESTY} --with-http_postgres_module; make; 
   - sudo make install
   - sudo ln -sf ${OPENRESTY}/nginx/sbin/nginx /usr/local/bin/nginx
   - cd ${TRAVIS_BUILD_DIR}
 before_script:
+  - wget -O ag.biom https://github.com/biocore/American-Gut/blob/master/data/AG/AG_100nt_even10k.biom?raw=true --no-check-certificate
+  # - wget -O ag.txt https://github.com/biocore/American-Gut/blob/master/data/AG/AG_100nt_even10k.txt?raw=true --no-check-certificate
   - python populate_test_db.py
   - mkdir logs
   - /usr/local/openresty/nginx/sbin/nginx -p `pwd`/ -c nginx.conf
 script:
-  - psql -d ag_rest -c 'select * from foo' -U postgres
   - curl http://127.0.0.1:8080/
+  - python tests/rest_tests.py

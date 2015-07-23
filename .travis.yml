@@ -15,10 +15,10 @@ before_install:
 install:
   # install a few of the dependencies that pip would otherwise try to install
   # when intalling scikit-bio
-  - travis_retry conda create --yes -n env_name python=$PYTHON_VERSION pip 'scipy>0.13.0' 'numpy>= 1.7' 'h5py>=2.3.1' 'future==0.13.0'
+  - travis_retry conda create --yes -n env_name python=$PYTHON_VERSION pip 'scipy>0.13.0' 'numpy>= 1.7' 'h5py>=2.3.1' 'future==0.13.0' 'psycopg2'
   - source activate env_name
   - pip install biom-format
 before_script:
-  - psql -c 'create database travis_ci_test;' -U postgres
+  - python populate_test_db.py
 script:
-  - psql -c 'select 1' 
+  - psql -c 'select * from foo'

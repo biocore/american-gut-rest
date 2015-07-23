@@ -1,7 +1,6 @@
 language: python
 addons:
   postgresql: "9.3"
-sudo: false
 env:
   global:
     - PYTHON_VERSION=2.7

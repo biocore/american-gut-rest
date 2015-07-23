@@ -27,11 +27,10 @@ install:
   - sudo ln -sf ${OPENRESTY}/nginx/sbin/nginx /usr/local/bin/nginx
   - cd ${TRAVIS_BUILD_DIR}
 before_script:
-  - python populate_test_db.py
-  - mkdir logs
-  - /usr/local/openresty/nginx/sbin/nginx -p `pwd`/ -c nginx.conf
   - wget -O ag.biom https://github.com/biocore/American-Gut/blob/master/data/AG/AG_100nt_even10k.biom?raw=true --no-check-certificate
-  - wget -O ag.txt https://github.com/biocore/American-Gut/blob/master/data/AG/AG_100nt_even10k.txt?raw=true --no-check-certificate
+  # - wget -O ag.txt https://github.com/biocore/American-Gut/blob/master/data/AG/AG_100nt_even10k.txt?raw=true --no-check-certificate
+  - python populate_test_db.py
+  - /usr/local/openresty/nginx/sbin/nginx -p `pwd`/ -c nginx.conf
 script:
   - curl http://127.0.0.1:8080/
   - python tests/rest_tests.py

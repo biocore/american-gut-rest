@@ -1,10 +1,11 @@
 language: python
 addons:
   postgresql: "9.3"
-sudo: false
 env:
   global:
     - PYTHON_VERSION=2.7
+    - OPENRESTY_VERSION=1.7.4.1
+    - OPENRESTY=/usr/local/openresty
 before_install:
   - wget http://repo.continuum.io/miniconda/Miniconda3-3.7.3-Linux-x86_64.sh -O miniconda.sh
   - chmod +x miniconda.sh
@@ -18,7 +19,17 @@ install:
   - travis_retry conda create --yes -n env_name python=$PYTHON_VERSION pip 'scipy>0.13.0' 'numpy>= 1.7' 'h5py>=2.3.1' 'future==0.13.0' 'psycopg2'
   - source activate env_name
   - pip install biom-format
+  # adapted from https://github.com/APItools/monitor/blob/master/.travis.yml
+  - wget -T 60 -qO- http://openresty.org/download/ngx_openresty-${OPENRESTY_VERSION}.tar.gz | tar xvz -C /tmp/
+  - cd /tmp/ngx_openresty-${OPENRESTY_VERSION}
+  - ./configure --prefix=${OPENRESTY}; make; 
+  - sudo make install
+  - sudo ln -sf ${OPENRESTY}/nginx/sbin/nginx /usr/local/bin/nginx
+  - cd ${TRAVIS_BUILD_DIR}
 before_script:
   - python populate_test_db.py
+  - mkdir logs
+  - /usr/local/openresty/nginx/sbin/nginx -p `pwd`/ -c nginx.conf
 script:
   - psql -d ag_rest -c 'select * from foo' -U postgres
+  - curl http://127.0.0.1:8080/

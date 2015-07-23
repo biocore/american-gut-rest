@@ -1,0 +1,24 @@
+language: python
+addons:
+  postgresql: "9.3"
+sudo: false
+env:
+  global:
+    - PYTHON_VERSION=2.7
+before_install:
+  - wget http://repo.continuum.io/miniconda/Miniconda3-3.7.3-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda3/bin:$PATH
+  # Update conda itself
+  - conda update --yes conda
+install:
+  # install a few of the dependencies that pip would otherwise try to install
+  # when intalling scikit-bio
+  - travis_retry conda create --yes -n env_name python=$PYTHON_VERSION pip 'scipy>0.13.0' 'numpy>= 1.7' 'h5py>=2.3.1' 'future==0.13.0'
+  - source activate env_name
+  - pip install biom-format
+before_script:
+  - psql -c 'create database travis_ci_test;' -U postgres
+script:
+  - psql -c 'select 1' 

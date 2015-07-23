@@ -21,4 +21,4 @@ install:
 before_script:
   - python populate_test_db.py
 script:
-  - psql -c 'select * from foo'
+  - psql -c 'select * from foo' -U postgres

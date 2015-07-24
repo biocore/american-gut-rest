@@ -1,5 +1,7 @@
 #!/bin/sh
-python populate_test_db.py
+python agr/schema.py
+python agr/check_and_load.py
+
 psql -d ag_rest -c "select count(1) from biom"
 
 if [ $? -ne 0 ]; then

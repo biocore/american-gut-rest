@@ -1,8 +1,7 @@
 from psycopg2 import connect
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-from biom import load_table, Table
 import agr
-import numpy as np
+
 
 tables = [
     ('biom', """create table biom (
@@ -23,7 +22,9 @@ tables = [
                  constraint pk_fastq primary key (sample),
                  constraint fk_fastq foreign key (sample) references biom(sample),
                  constraint uc_fastq unique (url)
-                 )""")
+                 )"""),
+    ('state', """create table state (
+                 biom_sha varchar)""")
 ]
 
 

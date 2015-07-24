@@ -1,5 +1,6 @@
 #!/bin/sh
-psql -d ag_rest -c "select count(1) from per_sample_biom"
+python populate_test_db.py
+psql -d ag_rest -c "select count(1) from biom"
 
 if [ $? -ne 0 ]; then
     echo "Doesn't look like the test database is in place" >&2

@@ -35,5 +35,5 @@ before_script:
   - mkdir logs
   - ./start_and_check.sh
 script:
-  - python tests/rest_tests.py
+  - python tests/test_rest.py
   - python tests/test_schema.py

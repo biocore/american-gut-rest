@@ -1,6 +1,6 @@
 language: python
-addons:
-  postgresql: "9.3"
+#addons:
+#  postgresql: "9.3"
 env:
   global:
     - PYTHON_VERSION=2.7

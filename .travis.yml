@@ -12,6 +12,7 @@ before_install:
   - chmod +x miniconda.sh
   - ./miniconda.sh -b
   - export PATH=/home/travis/miniconda3/bin:$PATH
+  - export PYTHONPATH=`pwd`:$PYTHONPATH
   # Update conda itself
   - conda update --yes conda
 install:
@@ -30,8 +31,8 @@ install:
 before_script:
   - wget -O ag.biom https://github.com/biocore/American-Gut/blob/master/data/AG/AG_100nt_even10k.biom?raw=true --no-check-certificate
   # - wget -O ag.txt https://github.com/biocore/American-Gut/blob/master/data/AG/AG_100nt_even10k.txt?raw=true --no-check-certificate
-  - python populate_test_db.py
   - mkdir logs
-  - ./start_and_check.sh
 script:
-  - python tests/rest_tests.py
+  - python tests/test_schema.py
+  - ./start_and_check.sh
+  - python tests/test_rest.py

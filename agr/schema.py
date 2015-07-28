@@ -7,6 +7,7 @@ tables = [
     ('biom', """create table biom (
                 sample varchar,
                 biom json,
+                biomtxt text,
                 constraint pk_biom primary key(sample)
                 )"""),
     ('metadata', """create table metadata (

@@ -16,10 +16,7 @@ class RESTTests(TestCase):
         resp = requests.get('http://127.0.0.1:8080/sample/')
         obs_full = json.loads(resp.content)
         for sample in obs_full:
-            print sample
             resp = requests.get('http://127.0.0.1:8080/otu/%s' % sample)
-            print resp.status_code
-            print resp.content[:100]
             obs = json.loads(resp.content)
             cursor.execute("select biom from biom where sample=%s",
                            [sample])

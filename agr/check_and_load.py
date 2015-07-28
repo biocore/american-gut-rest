@@ -50,14 +50,16 @@ def generate_per_sample_biom(biom_file, limit):
         single_sample = Table(v[:, np.newaxis], obs_ids, [sample], obs_md)
         single_sample.filter(lambda v_, i, md: v_ > 0, axis='observation')
         biomv1 = single_sample.to_json('AG')
-        yield (sample, biomv1)
+        biomtxt = single_sample.to_tsv(header_key='taxonomy',
+                                       header_value='taxonomy')
+        yield (sample, biomv1, biomtxt)
         count += 1
 
 
-def insert_biom_sample(cur, id_, data):
+def insert_biom_sample(cur, id_, biomv1, biomtxt):
     cur.execute("""delete from biom where sample=%s""", [id_])
-    cur.execute("""insert into biom (sample, biom)
-                   values (%s, %s)""", [id_, data])
+    cur.execute("""insert into biom (sample, biom, biomtxt)
+                   values (%s, %s, %s)""", [id_, biomv1, biomtxt])
 
 
 def insert_fastq_sample(cur, id_, data):
@@ -95,8 +97,8 @@ def do_biom_update(cur):
     biom_file = downloader(agr.ag_biom_src, True)
 
     limit = 10 if agr.test_environment else None
-    for sample_id, sample_biom in generate_per_sample_biom(biom_file, limit):
-        insert_biom_sample(cur, sample_id, sample_biom)
+    for sample_id, biomv1, biomtxt in generate_per_sample_biom(biom_file, limit):
+        insert_biom_sample(cur, sample_id, biomv1, biomtxt)
 
     update_biom_sha(cur)
 
@@ -167,9 +169,9 @@ if __name__ == '__main__':
     c.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = c.cursor()
 
-    if biom_unchanged(cur):
+    #if biom_unchanged(cur):
         # data are the same, no change
-        sys.exit(0)
+    #    sys.exit(0)
 
     do_biom_update(cur)
     do_fq_update(cur)

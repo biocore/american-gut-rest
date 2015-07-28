@@ -32,5 +32,14 @@ class RESTTests(TestCase):
         obs = set(obs_full)
         self.assertEqual(obs, exp)
 
+    def test_sequence(self):
+        resp = requests.get('http://127.0.0.1:8080/sample')
+        samps = json.loads(resp.content)
+        seq_resp = requests.get('http://127.0.0.1:8080/sequence/%s' % samps[0])
+        seq_data = json.loads(seq_resp.content)
+        self.assertTrue('fastq_url' in seq_data[0])
+        self.assertTrue(seq_data[0]['fastq_url'].startswith('ftp://ftp.sra'))
+        self.assertTrue(seq_data[0]['fastq_url'].endswith('fastq.gz'))
+
 if __name__ == '__main__':
     main()

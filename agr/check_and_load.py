@@ -2,6 +2,7 @@ from psycopg2 import connect
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from biom import load_table, Table
 import json
+import re
 import numpy as np
 import requests
 import tempfile
@@ -54,8 +55,25 @@ def generate_per_sample_biom(biom_file, limit):
 
 
 def insert_biom_sample(cur, id_, data):
+    cur.execute("""delete from biom where sample=%s""", [id_])
     cur.execute("""insert into biom (sample, biom)
                    values (%s, %s)""", [id_, data])
+
+
+def insert_fastq_sample(cur, id_, data):
+    """Insert a fastq download URL
+
+    It is possible that the accession map has more samples than the BIOM table
+    if, for instance, a sample didn't yield sufficient sequence to be included
+    in processing. This situation will also be encountered during testing.
+    """
+    cur.execute("select exists (select sample from biom where sample=%s)",
+                [id_])
+
+    if cur.fetchone()[0]:
+        cur.execute("""delete from fastq where sample=%s""", [id_])
+        cur.execute("""insert into fastq (sample, url)
+                       values (%s, %s)""", [id_, data])
 
 
 def biom_unchanged(cur):
@@ -70,6 +88,65 @@ def update_biom_sha(cur):
     """Update the database biom MD5 in use"""
     sha = json.loads(requests.get(agr.ag_biom_src_api).content)[0]['sha']
     cur.execute("insert into state (biom_sha) values (%s)", [sha])
+
+
+def do_biom_update(cur):
+    """Perform the BIOM table update"""
+    biom_file = downloader(agr.ag_biom_src, True)
+
+    limit = 10 if agr.test_environment else None
+    for sample_id, sample_biom in generate_per_sample_biom(biom_file, limit):
+        insert_biom_sample(cur, sample_id, sample_biom)
+
+    update_biom_sha(cur)
+
+
+def do_fq_update(cur):
+    """Perform the fastq data update
+
+    This step is not limited for the test environment as the data volume and
+    compute is small.
+
+    Much of this function is sourced from the American Gut repository.
+    """
+    ebi_url = "http://www.ebi.ac.uk/ena/data/warehouse/" \
+              "filereport?accession=%(accession)s&result=read_run&" \
+              "fields=secondary_sample_accession,submitted_ftp"
+    fq_to_sample_id = re.compile('seqs_.*\.fastq\.gz$')
+
+    # grab the accession -> sample map
+    with open(downloader(agr.ag_accession_src, False)) as acc_fp:
+        accession_map = json.loads(acc_fp.read())
+
+    accessions = set(accession_map)
+
+    for accession in accessions:
+        resp = requests.get(ebi_url % {'accession': accession})
+
+        if not resp.status_code == 200:
+            raise requests.HTTPError("Unable to grab %s." % accession)
+
+        for line in resp.content.splitlines()[1:]:
+            if 'ERA371447' in line:
+                # Corrupt sequence files were uploaded to EBI for one of the AG
+                # rounds. Ignoring entries associated with this accession works
+                # around the corruption
+                continue
+
+            parts = line.strip().split('\t', 1)
+            if len(parts) != 2:
+                # an oddity that occurs...
+                continue
+            else:
+                fq_url = "ftp://%s" % parts[1]
+
+            try:
+                filename = fq_to_sample_id.search(fq_url).group(0)
+            except:
+                continue
+
+            sample_id = filename.rstrip('.fastq.gz').strip('seqs_')
+            insert_fastq_sample(cur, sample_id, fq_url)
 
 
 if __name__ == '__main__':
@@ -94,10 +171,5 @@ if __name__ == '__main__':
         # data are the same, no change
         sys.exit(0)
 
-    biom_file = downloader(agr.ag_biom_src, True)
-
-    limit = 10 if agr.test_environment else None
-    for sample_id, sample_biom in generate_per_sample_biom(biom_file, limit):
-        insert_biom_sample(cur, sample_id, sample_biom)
-
-    update_biom_sha(cur)
+    do_biom_update(cur)
+    do_fq_update(cur)

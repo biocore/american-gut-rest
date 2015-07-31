@@ -6,13 +6,13 @@ events {
 
 http {
     upstream database {
-        postgres_server  127.0.0.1 dbname=ag_rest user=postgres;
+        postgres_server  %(db_host)s dbname=%(db_name)s user=%(db_user)s password=%(db_password)s;
     }
     server_tokens off;
 
     # allow clients to request data be gzip'd 
     gzip on; 
-    gzip_types application/json;
+    gzip_types application/json;   ## support plain text
 
     # whitelist on rate limiting, adapted from
     # http://serverfault.com/posts/642357/edit
@@ -106,15 +106,6 @@ http {
             postgres_rewrite  GET  no_rows 410;
         }
 
-        ### redirect to ag github repo
-        # determine samples by metadata by metadata
-        ###  /metadata?age_gt=5&age_lt=15&antibiotic_select=Within%20the%20last%20week
-        ### returns 
-        
-        # metadata descriptions
-        ### category types, values, etc
-        ### returns {"age": ["continuous", 0, 100], "antibiotic_select": ["discrete", ["Last week, etc etc"]]}
-        
         # fetch sequences
         location ~ /sequence/(?<num>\d+?\.[0-9a-zA-Z]+) {
             # enable client side caching do minimize unnecessary rerequests
@@ -127,19 +118,5 @@ http {
             postgres_query  GET "SELECT url as fastq_url FROM fastq WHERE sample=$escaped";
             postgres_rewrite  no_rows    410;
         }
-
-        # adiv
-        ### /alpha-diversity/{sample_id}{?metric}
-        ### [sample_id, metric, value]
-        
-        # bdiv
-        ### /beta-diversity/{sample_id}/{sample_id}{?metric}
-        ### [sample_id, sample_id, metric, value]
-
-        # errors should be of:
-        ### {
-        ###  "message": "Not Found",
-        ###  "documentation_url": "https://developer.github.com/v3"
-        ### }
     }
 }

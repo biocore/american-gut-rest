@@ -2,6 +2,7 @@ import os
 import functools
 from ConfigParser import ConfigParser
 
+
 _defaults = {
     'db_user': 'postgres',
     'db_host': 'localhost',

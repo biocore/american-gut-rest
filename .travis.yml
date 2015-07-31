@@ -33,6 +33,7 @@ before_script:
   # - wget -O ag.txt https://github.com/biocore/American-Gut/blob/master/data/AG/AG_100nt_even10k.txt?raw=true --no-check-certificate
   - mkdir logs
 script:
+  - python scripts/nginx_config.py > nginx.conf
   - python tests/test_schema.py
   - ./start_and_check.sh
   - python tests/test_rest.py

@@ -1,4 +1,13 @@
 #!/bin/sh
+
+# ----------------------------------------------------------------------------
+# Copyright (c) 2011-2015, The American Gut Development Team.
+#
+# Distributed under the terms of the Modified BSD License.
+#
+# The full license is in the file COPYING.txt, distributed with this software.
+# ----------------------------------------------------------------------------
+
 python agr/schema.py
 python agr/check_and_load.py
 

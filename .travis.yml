@@ -20,7 +20,7 @@ install:
   # when intalling scikit-bio
   - travis_retry conda create --yes -n env_name python=$PYTHON_VERSION pip 'scipy>0.13.0' 'numpy>= 1.7' 'h5py>=2.3.1' 'future==0.13.0' 'psycopg2'
   - source activate env_name
-  - pip install biom-format requests
+  - pip install biom-format requests flake8
   # adapted from https://github.com/APItools/monitor/blob/master/.travis.yml
   - wget -T 60 -qO- http://openresty.org/download/ngx_openresty-${OPENRESTY_VERSION}.tar.gz | tar xvz -C /tmp/
   - cd /tmp/ngx_openresty-${OPENRESTY_VERSION}
@@ -37,3 +37,4 @@ script:
   - python tests/test_schema.py
   - ./start_and_check.sh
   - python tests/test_rest.py
+  - flake8 agr/ scripts/

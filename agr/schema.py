@@ -12,28 +12,32 @@ import agr
 
 
 tables = [
-    ('biom', """create table biom (
-                sample varchar,
-                biom json,
-                biomtxt text,
-                constraint pk_biom primary key(sample)
-                )"""),
-    ('metadata', """create table metadata (
-                    sample varchar,
-                    category varchar,
-                    value varchar,
-                    constraint pk_metadata primary key (sample, category),
-                    constraint fk_metadata foreign key (sample) references biom(sample)
-                    )"""),
-    ('fastq', """create table fastq (
-                 sample varchar,
-                 url varchar,
-                 constraint pk_fastq primary key (sample),
-                 constraint fk_fastq foreign key (sample) references biom(sample),
-                 constraint uc_fastq unique (url)
-                 )"""),
-    ('state', """create table state (
-                 biom_sha varchar)""")
+    ('biom',
+        """create table biom (
+           sample varchar,
+           biom json,
+           biomtxt text,
+           constraint pk_biom primary key(sample)
+           )"""),
+    ('metadata',
+        """create table metadata (
+           sample varchar,
+           category varchar,
+           value varchar,
+           constraint pk_metadata primary key (sample, category),
+           constraint fk_metadata foreign key (sample) references biom(sample)
+           )"""),
+    ('fastq',
+        """create table fastq (
+        sample varchar,
+        url varchar,
+        constraint pk_fastq primary key (sample),
+        constraint fk_fastq foreign key (sample) references biom(sample),
+        constraint uc_fastq unique (url)
+        )"""),
+    ('state',
+        """create table state (
+           biom_sha varchar)""")
 ]
 
 
@@ -111,7 +115,6 @@ def create_database():
     cur.execute('create database %s' % agr.db_name)
     cur.close()
     c.close()
-
 
     c = connect(user=agr.db_user, password=agr.db_password,
                 host=agr.db_host, dbname=agr.db_name)

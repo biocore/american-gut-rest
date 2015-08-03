@@ -46,7 +46,6 @@ def generate_per_sample_biom(biom_file, limit):
     table = load_table(biom_file)
     obs_ids = table.ids(axis='observation')
     obs_md = table.metadata(axis='observation')
-    fmt_taxonomy = lambda x: '; '.join(x)
 
     if limit is None:
         limit = np.inf
@@ -59,9 +58,10 @@ def generate_per_sample_biom(biom_file, limit):
         single_sample = Table(v[:, np.newaxis], obs_ids, [sample], obs_md)
         single_sample.filter(lambda v_, i, md: v_ > 0, axis='observation')
         biomv1 = single_sample.to_json('AG')
-        biomtxt = single_sample.to_tsv(header_key='taxonomy',
-                                       header_value='taxonomy',
-                                       metadata_formatter=fmt_taxonomy)
+        biomtxt = single_sample.to_tsv(
+            header_key='taxonomy',
+            header_value='taxonomy',
+            metadata_formatter=lambda x: '; '.join(x))
         yield (sample, biomv1, biomtxt)
         count += 1
 
@@ -107,7 +107,8 @@ def do_biom_update(cur):
     biom_file = downloader(agr.ag_biom_src, True)
 
     limit = 10 if agr.test_environment else None
-    for sample_id, biomv1, biomtxt in generate_per_sample_biom(biom_file, limit):
+    it = generate_per_sample_biom(biom_file, limit)
+    for sample_id, biomv1, biomtxt in it:
         insert_biom_sample(cur, sample_id, biomv1, biomtxt)
 
     update_biom_sha(cur)

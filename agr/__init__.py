@@ -17,9 +17,9 @@ _defaults = {
     'db_password': '',
     'db_name': 'ag_rest',
     'test_environment': True,
-    'ag_biom_src': 'https://github.com/biocore/American-Gut/blob/master/data/AG/AG_100nt_even10k.biom?raw=true',
-    'ag_biom_src_api': 'https://api.github.com/repos/biocore/American-Gut/commits?path=data/AG/AG.biom',
-    'ag_accession_src': 'https://github.com/biocore/American-Gut/blob/master/data/AG/accession_to_sample.json?raw=true'
+    'ag_biom_src': 'https://github.com/biocore/American-Gut/blob/master/data/AG/AG_100nt_even10k.biom?raw=true',  # noqa
+    'ag_biom_src_api': 'https://api.github.com/repos/biocore/American-Gut/commits?path=data/AG/AG.biom',  # noqa
+    'ag_accession_src': 'https://github.com/biocore/American-Gut/blob/master/data/AG/accession_to_sample.json?raw=true'  # noqa
 }
 
 
@@ -30,7 +30,9 @@ if 'AGREST_CONFIG' in os.environ:
     get = functools.partial(_config.get, 'main')
     getboolean = functools.partial(_config.get, 'main')
 else:
-    get = lambda x: _defaults[x]
+    def _get(item):
+        return _defaults[item]
+    get = _get
     getboolean = get
 
 

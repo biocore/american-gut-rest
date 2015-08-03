@@ -10,7 +10,7 @@ import os
 import functools
 from ConfigParser import ConfigParser
 
-
+# configuration defaults
 _defaults = {
     'db_user': 'postgres',
     'db_host': 'localhost',
@@ -23,6 +23,7 @@ _defaults = {
 }
 
 
+# source the config from a file or from _defaults
 _config = ConfigParser()
 if 'AGREST_CONFIG' in os.environ:
     with open(os.environ['AGREST_CONFIG']) as conf_fp:
@@ -36,6 +37,7 @@ else:
     getboolean = get
 
 
+# set the configuration variables
 db_user = get('db_user')
 db_host = get('db_host')
 db_password = get('db_password')

@@ -20,6 +20,20 @@ from agr.schema import (database_exists, database_connectivity,
 
 
 def downloader(url, binary):
+    """Download a file
+
+    Parameters
+    ----------
+    url : str
+        The url to retrieve
+    binary : bool
+        Whether the file to download is binary
+
+    Returns
+    -------
+    str
+        The path to the downloaded file
+    """
     # derived from http://stackoverflow.com/a/14114741/19741
     mode = 'wb' if binary else 'w'
     tmp_name = None
@@ -37,11 +51,23 @@ def downloader(url, binary):
 
 
 def generate_per_sample_biom(biom_file, limit):
-    """Yield (sample, biom_file)
+    """Generate per-sample BIOM files
 
-    sample : the sample ID
-    biom_file : a biom file in BIOM-format v1.0.0 of the sample
-    limit : limit the number of per-sample biom files produced
+    Parameters
+    ----------
+    biom_file : str
+        A filepath to a BIOM table
+    limit : int or None
+        Limit the number of tables to load
+
+    Returns
+    -------
+    str
+        The sample ID
+    str
+        The table in BIOM Format v1.0
+    str
+        The table in the classic OTU table format
     """
     table = load_table(biom_file)
     obs_ids = table.ids(axis='observation')
@@ -67,6 +93,19 @@ def generate_per_sample_biom(biom_file, limit):
 
 
 def insert_biom_sample(cur, id_, biomv1, biomtxt):
+    """Insert per-sample tables
+
+    Parameters
+    ----------
+    cur : cursor
+        A cursor to the database
+    id_ : str
+        A sample ID
+    biomv1 : str
+        A table in BIOM Format v1.0
+    biomtxt : str
+        A table in the classic OTU table format
+    """
     cur.execute("""delete from biom where sample=%s""", [id_])
     cur.execute("""insert into biom (sample, biom, biomtxt)
                    values (%s, %s, %s)""", [id_, biomv1, biomtxt])
@@ -75,6 +114,17 @@ def insert_biom_sample(cur, id_, biomv1, biomtxt):
 def insert_fastq_sample(cur, id_, data):
     """Insert a fastq download URL
 
+    Parameters
+    ----------
+    cur : cursor
+        A cursor to the database
+    id_ : str
+        A sample ID
+    data : str
+        The URL
+
+    Notes
+    -----
     It is possible that the accession map has more samples than the BIOM table
     if, for instance, a sample didn't yield sufficient sequence to be included
     in processing. This situation will also be encountered during testing.
@@ -89,7 +139,13 @@ def insert_fastq_sample(cur, id_, data):
 
 
 def biom_unchanged(cur):
-    """Check if the database has the same commit"""
+    """Check if the database has the same commit
+
+    Parameters
+    ----------
+    cur : cursor
+        A cursor to the database
+    """
     sha = json.loads(requests.get(agr.ag_biom_src_api).content)[0]['sha']
     cur.execute("select exists (select biom_sha from state where biom_sha=%s)",
                 [sha])
@@ -97,13 +153,25 @@ def biom_unchanged(cur):
 
 
 def update_biom_sha(cur):
-    """Update the database biom MD5 in use"""
+    """Update the database biom MD5 in use
+
+    Parameters
+    ----------
+    cur : cursor
+        A cursor to the database
+    """
     sha = json.loads(requests.get(agr.ag_biom_src_api).content)[0]['sha']
     cur.execute("insert into state (biom_sha) values (%s)", [sha])
 
 
 def do_biom_update(cur):
-    """Perform the BIOM table update"""
+    """Perform the BIOM table update
+
+    Parameters
+    ----------
+    cur : cursor
+        A cursor to the database
+    """
     biom_file = downloader(agr.ag_biom_src, True)
 
     limit = 10 if agr.test_environment else None
@@ -117,6 +185,13 @@ def do_biom_update(cur):
 def do_fq_update(cur):
     """Perform the fastq data update
 
+    Parameters
+    ----------
+    cur : cursor
+        A cursor to the database
+
+    Notes
+    -----
     This step is not limited for the test environment as the data volume and
     compute is small.
 

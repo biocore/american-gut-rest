@@ -13,6 +13,7 @@ import agr
 
 
 def get_nginx_template():
+    """Source the nginx template"""
     cwd = os.path.join(os.path.dirname(os.path.abspath(__file__)))
     supp_files = '../agr/support_files'
     conf_template = os.path.join(cwd, supp_files, 'nginx_config.template')

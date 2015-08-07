@@ -232,7 +232,6 @@ def do_fq_update(cur):
                 filename = fq_to_sample_id.search(fq_url).group(0)
             except:
                 continue
-
             sample_id = filename.rstrip('.fastq.gz').strip('seqs_')
             insert_fastq_sample(cur, sample_id, fq_url)
 
@@ -250,14 +249,14 @@ if __name__ == '__main__':
         sys.stderr.write('Schema does not appear to be sane\n')
         sys.exit(1)
 
-    c = connect(user=agr.db_user, host=agr.db_host, password=agr.db_password,
-                dbname=agr.db_name)
+    c = connect(user=agr.admin_db_user, host=agr.db_host,
+                password=agr.admin_db_password, dbname=agr.db_name)
     c.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = c.cursor()
 
-    if biom_unchanged(cur):
+    #if biom_unchanged(cur):
         # data are the same, no change
-        sys.exit(0)
+    #    sys.exit(0)
 
-    do_biom_update(cur)
+    #do_biom_update(cur)
     do_fq_update(cur)

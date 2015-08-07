@@ -254,9 +254,9 @@ if __name__ == '__main__':
     c.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = c.cursor()
 
-    #if biom_unchanged(cur):
+    if biom_unchanged(cur):
         # data are the same, no change
-    #    sys.exit(0)
+        sys.exit(0)
 
-    #do_biom_update(cur)
+    do_biom_update(cur)
     do_fq_update(cur)

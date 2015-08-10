@@ -173,7 +173,7 @@ def create_database():
     Database credentials are sourced from the agr module (e.g., the environment
     configuration.
     """
-    c = connect(user=agr.db_user, password=agr.db_password,
+    c = connect(user=agr.admin_db_user, password=agr.admin_db_password,
                 host=agr.db_host)
 
     c.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
@@ -183,7 +183,7 @@ def create_database():
     cur.close()
     c.close()
 
-    c = connect(user=agr.db_user, password=agr.db_password,
+    c = connect(user=agr.admin_db_user, password=agr.admin_db_password,
                 host=agr.db_host, dbname=agr.db_name)
 
     c.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)

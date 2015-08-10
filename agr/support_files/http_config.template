@@ -1,0 +1,50 @@
+# ----------------------------------------------------------------------------
+# Copyright (c) 2011-2015, The American Gut Development Team.
+#
+# Distributed under the terms of the Modified BSD License.
+#
+# The full license is in the file COPYING.txt, distributed with this software.
+# ----------------------------------------------------------------------------
+
+worker_processes  1;
+error_log error.log;
+events {
+    worker_connections 1024;
+}
+
+http {
+    upstream database {
+        postgres_server  %(db_host)s dbname=%(db_name)s user=%(db_user)s password=%(db_password)s;
+    }
+    server_tokens off;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+    
+    access_log  logs/access.log  main;
+                
+    # allow clients to request data be gzip'd 
+    gzip on; 
+    gzip_types application/json;   # TODO: support plain text
+
+    # whitelist on rate limiting, adapted from
+    # http://serverfault.com/posts/642357/edit
+    geo $whitelist {
+       default 0;
+       # CIDR in the list below are not limited
+       127.0.0.1/32 1;
+    }
+
+    map $whitelist $limit {
+        0     $binary_remote_addr;
+        1     "";
+    }
+
+    # enable rate limiting. 10m but basically default, lets us track 160k 
+    # addresses. The rate is 10 requests per second per IP
+    limit_req_zone $limit zone=agrest:10m rate=10r/s;
+    limit_req             zone=agrest burst=5 nodelay;
+
+    include %(base_conf_dir)s/*.apiserver.conf;
+}

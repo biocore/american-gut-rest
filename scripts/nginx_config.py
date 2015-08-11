@@ -50,7 +50,8 @@ if __name__ == '__main__':
         filename = os.path.join(agr.base_conf_dir, 'nginx.conf')
     elif sys.argv[1] == 'server':
         template = get_server_template()
-        populated = template % {'serverport': agr.serverport}
+        populated = template % {'serverport': agr.serverport,
+                                'location_base': agr.location_base}
         filename = os.path.join(agr.base_conf_dir, 'agr.apiserver.conf')
     else:
         sys.stderr.write("Unknown argument: %s\n" % sys.argv[1])

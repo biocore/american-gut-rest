@@ -15,6 +15,11 @@ _defaults = {
     # the server port is the port that the nginx webserver will listen on
     'serverport': '8080',
 
+    # the base URL for the API. For instance, setting this to "/foo/bar" would
+    # result in the nginx configuration location directives accepting requests
+    # to endpoints stemming from that base such as "/foo/bar/otu"
+    'location_base': '',
+
     # the base_conf_dir is the location for the nginx server config.
     # NOTE: there are multiple config files for nginx, the primary one being
     # the "http" config. The base_conf_dir houses other more specific configs
@@ -65,6 +70,7 @@ else:
 
 # set the configuration variables
 serverport = get('serverport')
+location_base = get('location_base')
 base_conf_dir = get('base_conf_dir')
 db_user = get('db_user')
 db_host = get('db_host')
@@ -80,4 +86,5 @@ ag_accession_src = get('ag_accession_src')
 
 __all__ = ['serverport', 'db_user', 'db_hostname', 'db_password', 'db_name',
            'admin_db_user', 'admin_db_password', 'test_environment',
-           'ag_biom_src', 'ag_biom_src_api', 'ag_accession_src']
+           'location_base', 'ag_biom_src', 'ag_biom_src_api',
+           'ag_accession_src']

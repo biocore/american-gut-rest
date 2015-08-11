@@ -9,7 +9,7 @@ server {
     xss_output_type 'application/x-javascript';
 
     # let the client know about the different endpoints
-    location = / {
+    location = %(location_base)s/ {
         echo "{";
         echo "  \"otu_url\": \"https://${hostname}${uri}otu/:sample-id\", ";
         echo "  \"otu_json_url\": \"https://${hostname}${uri}otu/:sample-id/json\", ";
@@ -20,7 +20,7 @@ server {
     }
 
     # get OTU data in BIOM v1.0
-    location ~ /otu/(?<num>\d+?\.[0-9a-zA-Z]+) {
+    location ~ %(location_base)s/otu/(?<num>\d+?\.[0-9a-zA-Z]+) {
         # enable client side caching do minimize unnecessary rerequests
         expires 14d;
         
@@ -36,7 +36,7 @@ server {
     # likely is a better way to support different formats, but doing 
     # something like ?format=json was not lending itself well as nginx
     # if-statements are frowned upon. 
-    location ~ /otu/(?<num>\d+?\.[0-9a-zA-Z]+)/json {
+    location ~ %(location_base)s/otu/(?<num>\d+?\.[0-9a-zA-Z]+)/json {
         # enable client side caching do minimize unnecessary rerequests
         expires 14d;
 
@@ -49,7 +49,7 @@ server {
     }
 
     # get OTU data in tab delimited format
-    location ~ /otu/(?<num>\d+?\.[0-9a-zA-Z]+)/txt {
+    location ~ %(location_base)s/otu/(?<num>\d+?\.[0-9a-zA-Z]+)/txt {
         # enable client side caching do minimize unnecessary rerequests
         expires 14d;
 
@@ -62,7 +62,7 @@ server {
     }
 
     # get known samples
-    location /sample {
+    location %(location_base)s/sample {
         # enable client side caching do minimize unnecessary rerequests
         expires 14d;
 
@@ -74,7 +74,7 @@ server {
     }
 
     # fetch sequences
-    location ~ /sequence/(?<num>\d+?\.[0-9a-zA-Z]+) {
+    location ~ %(location_base)s/sequence/(?<num>\d+?\.[0-9a-zA-Z]+) {
         # enable client side caching do minimize unnecessary rerequests
         expires 14d;
 

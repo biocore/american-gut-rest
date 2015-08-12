@@ -7,7 +7,6 @@
 # ----------------------------------------------------------------------------
 
 import os
-import functools
 from ConfigParser import ConfigParser
 
 # configuration defaults
@@ -59,13 +58,14 @@ _config = ConfigParser()
 if 'AGREST_CONFIG' in os.environ:
     with open(os.environ['AGREST_CONFIG']) as conf_fp:
         _config.readfp(conf_fp)
-    get = functools.partial(_config.get, 'main')
-    getboolean = functools.partial(_config.get, 'main')
+    def get(key):
+        try:
+            return _config.get('main', key)
+        except:
+            return _defaults[key]
 else:
-    def _get(item):
+    def get(item):
         return _defaults[item]
-    get = _get
-    getboolean = get
 
 
 # set the configuration variables
@@ -78,7 +78,7 @@ db_password = get('db_password')
 db_name = get('db_name')
 admin_db_user = get('admin_db_user')
 admin_db_password = get('admin_db_password')
-test_environment = getboolean('test_environment')
+test_environment = get('test_environment')
 ag_biom_src = get('ag_biom_src')
 ag_biom_src_api = get('ag_biom_src_api')
 ag_accession_src = get('ag_accession_src')

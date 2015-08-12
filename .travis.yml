@@ -38,4 +38,5 @@ script:
   - python tests/test_schema.py
   - ./start_and_check.sh
   - python tests/test_rest.py
+  - python tests/test_config.py
   - flake8 agr/ scripts/

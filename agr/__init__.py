@@ -61,7 +61,7 @@ if 'AGREST_CONFIG' in os.environ:
 
     def get(key):
         try:
-            return _config.get('main', key)
+            return _config.get('main', key).strip("'").strip('"')
         except:
             return _defaults[key]
 
@@ -80,7 +80,7 @@ db_password = get('db_password')
 db_name = get('db_name')
 admin_db_user = get('admin_db_user')
 admin_db_password = get('admin_db_password')
-test_environment = get('test_environment')
+test_environment = bool(get('test_environment'))
 ag_biom_src = get('ag_biom_src')
 ag_biom_src_api = get('ag_biom_src_api')
 ag_accession_src = get('ag_accession_src')

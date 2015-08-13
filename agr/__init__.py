@@ -58,11 +58,13 @@ _config = ConfigParser()
 if 'AGREST_CONFIG' in os.environ:
     with open(os.environ['AGREST_CONFIG']) as conf_fp:
         _config.readfp(conf_fp)
+
     def get(key):
         try:
             return _config.get('main', key)
         except:
             return _defaults[key]
+
 else:
     def get(item):
         return _defaults[item]

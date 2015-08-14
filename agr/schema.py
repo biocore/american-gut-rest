@@ -45,7 +45,7 @@ tables = [
 
 
 def database_connectivity(user=agr.db_user, password=agr.db_password,
-                          host=agr.db_host):
+                          host=agr.db_host, dbname=agr.db_name):
     """Determine if we can connect to the database
 
     Paramters
@@ -63,7 +63,7 @@ def database_connectivity(user=agr.db_user, password=agr.db_password,
         True if a connection was made, False otherwise
     """
     try:
-        c = connect(user=user, password=password, host=host)
+        c = connect(user=user, password=password, host=host, dbname=dbname)
     except:
         return False
     else:
@@ -183,6 +183,11 @@ def create_database():
     cur.close()
     c.close()
 
+    create_tables()
+
+
+def create_tables():
+    """Create the tables"""
     c = connect(user=agr.admin_db_user, password=agr.admin_db_password,
                 host=agr.db_host, dbname=agr.db_name)
 
@@ -200,8 +205,12 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if not agr.test_environment:
-        sys.stderr.write("This does not appear to be a test environment\n")
-        sys.exit(1)
+        if sys.argv[1] == 'FORCE_CREATE_TABLES':
+            create_tables()
+            sys.exit(0)
+        else:
+            sys.stderr.write("This does not appear to be a test environment\n")
+            sys.exit(1)
 
     if database_exists() and schema_is_sane() and schema_has_data():
         sys.exit(0)

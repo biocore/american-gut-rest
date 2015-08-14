@@ -40,7 +40,7 @@ _defaults = {
     # Indicate if we're operating in a test_environment.
     # WARNING: if test_environment is True, then it is possible to drop the
     # database
-    'test_environment': True,
+    'test_environment': 'True',
 
     # ag_*_src configs are for the data sources themselves, these must be
     # URLs that can be retreived using requests.get

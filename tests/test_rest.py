@@ -13,7 +13,7 @@ cursor = connection.cursor()
 
 class RESTTests(TestCase):
     def test_otu(self):
-        resp = requests.get('http://127.0.0.1:8080/sample/')
+        resp = requests.get('http://127.0.0.1:8080/sample/0')
         obs_full = json.loads(resp.content)
         for sample in obs_full:
             resp = requests.get('http://127.0.0.1:8080/otu/%s' % sample)
@@ -24,7 +24,7 @@ class RESTTests(TestCase):
             self.assertEqual(obs, exp)
 
     def test_sample(self):
-        resp = requests.get('http://127.0.0.1:8080/sample/')
+        resp = requests.get('http://127.0.0.1:8080/sample/0')
         obs_full = json.loads(resp.content)
         self.assertEqual(len(obs_full), 10)
         cursor.execute("select sample from biom")
@@ -33,7 +33,7 @@ class RESTTests(TestCase):
         self.assertEqual(obs, exp)
 
     def test_sequence(self):
-        resp = requests.get('http://127.0.0.1:8080/sample')
+        resp = requests.get('http://127.0.0.1:8080/sample/0')
         samps = json.loads(resp.content)
         seq_resp = requests.get('http://127.0.0.1:8080/sequence/%s' % samps[0])
         seq_data = json.loads(seq_resp.content)

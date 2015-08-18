@@ -70,7 +70,7 @@ server {
         postgres_escape $escaped $num;
         postgres_output text;
 
-        postgres_query GET "SELECT json_agg(sample) as samples FROM biom WHERE sample like '$num%'";
+        postgres_query GET "SELECT json_agg(sample) as samples FROM biom WHERE sample like '$num%%'";
         postgres_rewrite  GET  no_rows 410;
     }
     

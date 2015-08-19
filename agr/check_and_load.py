@@ -133,6 +133,13 @@ def insert_fastq_sample(cur, id_, data):
     if, for instance, a sample didn't yield sufficient sequence to be included
     in processing. This situation will also be encountered during testing.
     """
+    # it must exist in the biom table
+    cur.execute("select exists (select sample from biom where sample=%s)",
+                [id_])
+    if not cur.fetchone()[0]:
+        return
+
+    # if it already exists, delete it
     cur.execute("select exists (select sample from fastq where sample=%s)",
                 [id_])
 
@@ -263,4 +270,3 @@ if __name__ == '__main__':
     do_biom_update(cur)
     do_fq_update(cur)
     update_biom_sha(cur)
-

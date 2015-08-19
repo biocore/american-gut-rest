@@ -35,11 +35,21 @@ class RESTTests(TestCase):
     def test_sequence(self):
         resp = requests.get('http://127.0.0.1:8080/sample/0')
         samps = json.loads(resp.content)
-        seq_resp = requests.get('http://127.0.0.1:8080/sequence/%s' % samps[0])
+
+        # some samples in the table do not have sequence. I _believe_ this is
+        # due to the accession maps in github currently being out of sync
+        url = 'http://127.0.0.1:8080/sequence/%s'
+        i = 0
+        seq_resp = requests.get(url % samps[i])
+        while seq_resp.content == "(null)" and i < len(samps):
+            seq_resp = requests.get(url % samps[i])
+            i += 1
+
         seq_data = json.loads(seq_resp.content)
         self.assertTrue('fastq_url' in seq_data[0])
         self.assertTrue(seq_data[0]['fastq_url'].startswith('ftp://ftp.sra'))
         self.assertTrue(seq_data[0]['fastq_url'].endswith('fastq.gz'))
+
 
 if __name__ == '__main__':
     main()

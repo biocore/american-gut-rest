@@ -2,6 +2,7 @@ from unittest import TestCase, main
 import os
 import tempfile
 
+
 def dump_config(**kwargs):
     name = None
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as fp:

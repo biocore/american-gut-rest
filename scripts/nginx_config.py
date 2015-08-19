@@ -50,6 +50,7 @@ if __name__ == '__main__':
         filename = os.path.join(agr.base_conf_dir, 'nginx.conf')
     elif sys.argv[1] == 'server':
         template = get_server_template()
+        print template
         populated = template % {'serverport': agr.serverport,
                                 'location_base': agr.location_base}
         filename = os.path.join(agr.base_conf_dir, 'agr.apiserver.conf')

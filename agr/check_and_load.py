@@ -106,9 +106,11 @@ def insert_biom_sample(cur, id_, biomv1, biomtxt):
     biomtxt : str
         A table in the classic OTU table format
     """
-    cur.execute("""delete from biom where sample=%s""", [id_])
-    cur.execute("""insert into biom (sample, biom, biomtxt)
-                   values (%s, %s, %s)""", [id_, biomv1, biomtxt])
+    cur.execute("select exists(select 1 from biom where sample=%s)", [id_])
+    if cur.fetchone()[0]:
+        cur.execute("""delete from biom where sample=%s""", [id_])
+        cur.execute("""insert into biom (sample, biom, biomtxt)
+                       values (%s, %s, %s)""", [id_, biomv1, biomtxt])
 
 
 def insert_fastq_sample(cur, id_, data):
@@ -129,7 +131,7 @@ def insert_fastq_sample(cur, id_, data):
     if, for instance, a sample didn't yield sufficient sequence to be included
     in processing. This situation will also be encountered during testing.
     """
-    cur.execute("select exists (select sample from biom where sample=%s)",
+    cur.execute("select exists (select sample from fastq where sample=%s)",
                 [id_])
 
     if cur.fetchone()[0]:

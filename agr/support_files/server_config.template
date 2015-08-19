@@ -14,22 +14,9 @@ server {
         echo "  \"otu_url\": \"https://${hostname}${uri}otu/:sample-id\", ";
         echo "  \"otu_json_url\": \"https://${hostname}${uri}otu/:sample-id/json\", ";
         echo "  \"otu_txt_url\": \"https://${hostname}${uri}otu/:sample-id/txt\", ";
-        echo "  \"sample_url\": \"https://${hostname}${uri}sample/\"";
+        echo "  \"sample_id_search_url\": \"https://${hostname}${uri}sample/{query}\"";
         echo "  \"sequence_url\": \"https://${hostname}${uri}sequence/:sample-id\"";
         echo "}";
-    }
-
-    # get OTU data in BIOM v1.0
-    location ~ %(location_base)s/otu/(?<num>\d+?\.[0-9a-zA-Z]+) {
-        # enable client side caching do minimize unnecessary rerequests
-        expires 14d;
-        
-        postgres_pass     database;
-        postgres_escape $escaped $num;
-        postgres_output text;
-
-        postgres_query    GET  "SELECT biom FROM biom WHERE sample=$escaped";
-        postgres_rewrite  GET  no_rows 410;
     }
 
     # get OTU data in BIOM v1.0. This is a replicated location and there
@@ -61,18 +48,32 @@ server {
         postgres_rewrite  GET  no_rows 410;
     }
 
-    # get known samples
-    location %(location_base)s/sample {
+    # get OTU data in BIOM v1.0
+    location ~ %(location_base)s/otu/(?<num>\d+?\.[0-9a-zA-Z]+) {
+        # enable client side caching do minimize unnecessary rerequests
+        expires 14d;
+        
+        postgres_pass     database;
+        postgres_escape $escaped $num;
+        postgres_output text;
+
+        postgres_query    GET  "SELECT biom FROM biom WHERE sample=$escaped";
+        postgres_rewrite  GET  no_rows 410;
+    }
+
+    # search for a sample
+    location ~ %(location_base)s/sample/(?<num>\d+$) {
         # enable client side caching do minimize unnecessary rerequests
         expires 14d;
 
         postgres_pass     database;
+        postgres_escape $escaped $num;
         postgres_output text;
 
-        postgres_query GET "SELECT json_agg(sample) as samples FROM biom";
+        postgres_query GET "SELECT json_agg(sample) as samples FROM biom WHERE sample like '$num%%'";
         postgres_rewrite  GET  no_rows 410;
     }
-
+    
     # fetch sequences
     location ~ %(location_base)s/sequence/(?<num>\d+?\.[0-9a-zA-Z]+) {
         # enable client side caching do minimize unnecessary rerequests

@@ -108,7 +108,9 @@ def insert_biom_sample(cur, id_, biomv1, biomtxt):
     """
     cur.execute("select exists(select 1 from biom where sample=%s)", [id_])
     if cur.fetchone()[0]:
-        cur.execute("""delete from biom where sample=%s""", [id_])
+        cur.execute("""update biom set biom=%s, biomtxt=%s
+                       where sample=%s""", [biomv1, biomtxt, id_])
+    else:
         cur.execute("""insert into biom (sample, biom, biomtxt)
                        values (%s, %s, %s)""", [id_, biomv1, biomtxt])
 

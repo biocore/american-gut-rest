@@ -136,8 +136,8 @@ def insert_fastq_sample(cur, id_, data):
 
     if cur.fetchone()[0]:
         cur.execute("""delete from fastq where sample=%s""", [id_])
-        cur.execute("""insert into fastq (sample, url)
-                       values (%s, %s)""", [id_, data])
+
+    cur.execute("insert into fastq (sample, url) values (%s, %s)", [id_, data])
 
 
 def biom_unchanged(cur):
@@ -180,8 +180,6 @@ def do_biom_update(cur):
     it = generate_per_sample_biom(biom_file, limit)
     for sample_id, biomv1, biomtxt in it:
         insert_biom_sample(cur, sample_id, biomv1, biomtxt)
-
-    update_biom_sha(cur)
 
 
 def do_fq_update(cur):
@@ -260,5 +258,7 @@ if __name__ == '__main__':
         # data are the same, no change
         sys.exit(0)
 
-    do_biom_update(cur)
     do_fq_update(cur)
+    do_biom_update(cur)
+    update_biom_sha(cur)
+
